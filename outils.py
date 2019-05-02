@@ -105,9 +105,29 @@ Test pour avoir le fit
     for i in range(len(altitude[id8:])):
         beta808_p_fit.append(coeff_beta808_p_fit[0]*altitude[i]+coeff_beta808_p_fit[1])
 """    
+#%% calcul coefficient rétrodiffusion aérosols stabilité ++
+
+def calc_beta_aer_stable(izr,datamoy_zr,altitude,rayleigh,datamoy,LRp,LRm):
+    
+    a=[]
+    b=[]
+    beta_p=[]
+    for i in range(0,izr):
+        a.append(np.trapz(rayleigh['beta_m'][i:izr],x=altitude[i:izr]*1000))
+        b.append(datamoy[i]*np.exp(2.*(LRp-LRm)*a[i]))
+    c=[np.trapz(b[i:izr],x=altitude[i:izr]*1000) for i in range(0,izr)]
+    for i in range(0,izr):
+        beta_p.append((datamoy[i]*np.exp(2.*(LRp-LRm)*a[i]))/(datamoy_zr/rayleigh['beta_m'][izr]+2.*LRp*c[i])-rayleigh['beta_m'][i])
 
 
+    for i in range(0,len(altitude)-izr):
+        a.append(np.trapz(rayleigh['beta_m'][izr-1:izr-1+i],x=altitude[izr-1:izr-1+i]*1000))
+        b.append(datamoy[izr-1+i]*np.exp(-2.*(LRp-LRm)*a[izr-1+i]))
+    c=c+[np.trapz(b[izr-1:i],x=altitude[izr-1:i]*1000) for i in range(0,len(altitude)-izr)]
+    for i in range(0,len(altitude)-izr):
+        beta_p.append((datamoy[izr-1+i]*np.exp(-2.*(LRp-LRm)*a[izr-1+i]))/(datamoy_zr/rayleigh['beta_m'][izr]-2.*LRp*c[izr-1+i])-rayleigh['beta_m'][izr-1+i])
 
+    return beta_p
 
 
 

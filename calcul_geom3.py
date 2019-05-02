@@ -19,9 +19,10 @@ from scipy.optimize import curve_fit
 
 #les deux premiers fichiers sont utilisés pour calculer une moyenne de la fonction de recouvremenent (couche limite très peu développée)
 #les autres sont utilisés pour le calcul de la constante instrumentale
+#annee=["2019","2018","2018","2018","2018","2018","2018"]
 annee=["2019","2018","2019","2019","2019","2019","2019"]
-dates=["20190215","20181226","20190322","20190322","20190322","20190322"]
-hour=["000000","020000","010000","011004","012008","013010","014014"]
+dates=["20190215","20181226","20190121","20190121","20190121","20190121"]
+hour=["000000","020000","010000","011002","012004","013007","014009"]
 
 
 trajet='/net/nfs/prj1/QUALAIR/microLIDAR/database/MILAN/ascii/'+annee[0]+'/'+dates[0]+'/mli2MOY_'+dates[0]+'.'+hour[0]+'.JUS'
@@ -73,7 +74,6 @@ plt.show()
 plt.plot(altitude,data808moy)
 plt.plot(altitude,data808moy_dp)
 
-    
 plt.figure()
 plt.title("Vérification moyenne")
 plt.plot(altitude,data808_dp[3])
@@ -150,10 +150,11 @@ for i in range(len(altitude)):
     data532cor.append(data532moy[i]/cste532[2]/geom532_fit[i])
 
 #%%Calcul coefficient rétrodiffusion particule tot, méthode de Fernald, avec des intégrales de 0 à z, trop facile pour être juste
-"""
+
 beta808_aer=outils.calc_beta_aer(rayleigh808,altitude,data808moy,LRp,LRm,cste808[2])
 beta532_aer=outils.calc_beta_aer(rayleigh532,altitude,data532moy,LRp,LRm,cste532[2])
 
+"""
 plt.figure()
 plt.title("coefficient retrodiffusion, methode Fernald 808nm")
 plt.plot(altitude,beta808_aer,label="beta aerosol")
@@ -164,64 +165,20 @@ plt.legend()
 plt.show()
 """
 
-#%% calcul AOD//
-"""
-id2km=np.where(altitude==2.01)
-id2=id2km[0][0]
-
-beta808_aer_fit=beta808_aer[:id2]
-coeff_beta808_aer_fit=np.polyfit(altitude[id2:],beta808_aer[id2:],1)
-for i in range(len(altitude[id2:])):
-    beta808_aer_fit.append(coeff_beta808_aer_fit[0]*altitude[i]+coeff_beta808_aer_fit[1])
-
-plt.figure()
-plt.title("Vérification beta_aer et beta_aer_fit")
-#Problème, le fit est négatif pour les hautes altitudes
-plt.plot(altitude,beta808_aer)
-plt.plot(altitude,beta808_aer_fit)
-plt.xlim(0,30)
-plt.show()
-
-
-AOD808=[]
-alpha808_p_dz=[np.trapz(beta808_aer_fit[:i],x=altitude[:i]*1000) for i in range(len(altitude))]
-for i in range(len(altitude)):
-    AOD808.append(LRp*alpha808_p_dz[i])
-
-#plt.plot(altitude,AOD808)
-"""
-#%%Calcul coefficient rétrodiffusion particule, méthode article Gérard,plus stable
+#%%Calcul coefficient rétrodiffusion particule, Fernald,plus stable
 """
 izrkm=np.where(altitude==8.01)
 izr=izrkm[0][0]
 data808moy_zr=statistics.mean(data808moy[izr-10:izr+10])
 
-Ratt808=[]
-for i in range(len(altitude)):
-    Ratt808.append(data808moy[i]/(cste808[2]*geom808_fit[i]*rayleigh808['beta_m'][i]*rayleigh808['tm'][i]))
 
-a808=[]
-for i in range(0,izr):
-    a808.append(np.trapz(rayleigh808['beta_m'][i:izr],x=altitude[i:izr]*1000))
-for i in range(izr,len(altitude)):
-        a808.append(np.trapz(rayleigh808['beta_m'][izr:i],x=altitude[izr:i]*1000))
-
-
-a808=[np.trapz(rayleigh808['beta_m'][i:izr],x=altitude[i:izr]*1000) for i in range(len(altitude))]
-b808=[]
-for i in range(len(altitude)):
-    b808.append(data808moy[i]*np.exp(2.*(LRp-LRm)*a808[i]))
-c808=[np.trapz(b808[i:izr],x=altitude[i:izr]*1000) for i in range(len(altitude))]
-
-beta808_p=[]
-for i in range(len(altitude)):
-    beta808_p.append((data808moy[i]*np.exp(2.*(LRp-LRm)*a808[i]))/(data808moy_zr+2.*LRp*c808[i])-rayleigh808['beta_m'][i])
+beta808_aer2=outils.calc_beta_aer_stable(izr,data808moy_zr,altitude,rayleigh808,data808moy,LRp,LRm)
 
 
 plt.figure()
 plt.title("coefficient retrodiffusion aérosols, 808nm")
-plt.plot(altitude,beta808_p,label="beta aerosol")
-plt.plot(altitude,rayleigh808['beta_m'],label="beta moléculaire")
+plt.plot(altitude,beta808_aer2/cste808[2],label="beta aerosol")
+plt.plot(altitude,rayleigh808['beta_m']/cste808[2],label="beta moléculaire")
 plt.legend()
 plt.show()    
 
@@ -237,44 +194,10 @@ plt.plot(altitude,beta808_p_fit,label="beta aérosol fit")
 plt.legend()
 plt.show()    
 """
-#%%Calcul coefficient rétrodiffusion particule, méthode article Gérard
-"""
-izrkm=np.where(altitude==10.005)
-izr=izrkm[0][0]
-#izr=imax808
-Ratt808=[]
-for i in range(len(altitude)):
-    Ratt808.append(data808moy[i]/(cste808[2]*geom808_fit[i]*rayleigh808['beta_m'][i]*rayleigh808['tm'][i]))
-
-#plt.title('Ratt')   
-#plt.plot(altitude,Ratt808)
-    
-a808=[np.trapz(rayleigh808['beta_m'][izr:i],x=altitude[izr:i]*1000) for i in range(len(altitude))]
-b808=[]
-for i in range(len(altitude)):
-    b808.append(Ratt808[i]*rayleigh808['beta_m'][i]*rayleigh808['tm'][i]*np.exp(-2.*(LRp-LRm)*a808[i]))
-c808=[np.trapz(b808[izr:i],x=altitude[izr:i]*1000) for i in range(len(altitude))]
-
-#Que vaut Ta(zr)???
-R808=[]
-for i in range(len(altitude)):
-    #R808.append(Ratt808[i]*rayleigh808['beta_m'][i]*rayleigh808['tm'][i]*np.exp(-2.*(LRp-LRm)*a808[i])/(rayleigh808['beta_m'][izr]*rayleigh808['tm'][izr]*T_p808-2.*LRp*c808[i]))
-    R808.append(Ratt808[i]*rayleigh808['beta_m'][i]*rayleigh808['tm'][i]*np.exp(-2.*(LRp-LRm)*a808[i])/(cste808[2]*rayleigh808['beta_m'][i]-2.*LRp*c808[i]))
-beta808_p=[]
-for i in range(len(altitude)):
-    beta808_p.append((R808[i]-1.)*rayleigh808['beta_m'][i])
-
-plt.figure()
-plt.title("coefficient retrodiffusion aérosols, 808nm")
-plt.plot(altitude,beta808_p,label="beta aerosol")
-plt.plot(altitude,rayleigh808['beta_m'],label="beta moléculaire")
-plt.legend()
-plt.show()    
-"""   
 
  #%%Moyenne cste
-cste808_liste=[36689419.37807519,33214615.779274035,33606423.776109919,31568627.592203494,33948537.277566925,41044935.117830724]
-cste532_liste=[13716012.962917635,14174571.356842197,14607243.276845891,15351104.91029889,12607659.628663693,12345142.824067345]
+cste808_liste=[36689419.37807519,33214615.779274035,33606423.776109919,31568627.592203494,33948537.277566925,41044935.117830724,33606423.776109919,34789707.198917709]
+cste532_liste=[13716012.962917635,14174571.356842197,14607243.276845891,15351104.91029889,12607659.628663693,12345142.824067345,14607243.276845891,12332518.529443894]
 
 
 #%% plot

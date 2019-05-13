@@ -27,6 +27,7 @@ def calc_cste(data,datamoy,rayleigh,indice1,indice2,indice3,indice4):
         if cste[i]<0 :
             cste[i]=-cste[i]
     
+    print(cste)
     return cste
 
 #%%Calcul fonction de recouvrement
@@ -68,21 +69,30 @@ def calc_cste2(data,datamoy,rayleigh,indice1,indice2,indice3,indice4,trans_aer):
     for i in range(0,3):
         if cste[i]<0 :
             cste[i]=-cste[i]
-    
+    print(cste)
     return cste
 
 #%%Calcul transmission aérosol à zmax
     
-def calc_transmission_aer(LRp,LRm,altitude,datamoy,datacorr,rayleigh):
+def calc_transmission_aer(LRp,LRm,altitude,datacorr,rayleigh):
     idx_3500=np.where(altitude==3.495)
     id35=idx_3500[0][0]
 
-    imax=datamoy.index(max(datamoy[:id35]))
+    imax=datacorr.index(max(datacorr[:id35]))
+    diff1=100.
+    for i in range(imax,id35):
+        diff=abs((datacorr[imax]-rayleigh['beta_m'][imax])/2+rayleigh['beta_m'][imax]-datacorr[i])
+        if(diff<diff1):
+            diff1=diff
+            itop=i
 
-    beta_tot_zmax=datacorr[imax]
-    beta_m_zmax=rayleigh['beta_m'][imax]
-    beta_p_zmax=(beta_tot_zmax-beta_m_zmax)*altitude[imax]*1000
-    T_p=np.exp(-1.*LRp*beta_p_zmax)
+
+    beta_p_zmax=datacorr[itop]/rayleigh['tm'][itop]
+    beta_m_zmax=rayleigh['beta_m'][itop]
+    EO_p_zmax=(beta_p_zmax-beta_m_zmax)*altitude[itop]*1000
+    T_p=np.exp(-1.*LRp*EO_p_zmax)
+    
+    print(-np.log(T_p))
     
     return T_p
 

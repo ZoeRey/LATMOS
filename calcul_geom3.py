@@ -22,7 +22,7 @@ from scipy.optimize import curve_fit
 #annee=["2019","2018","2018","2018","2018","2018","2018"]
 annee=["2019","2018","2019","2019","2019","2019","2019"]
 dates=["20190215","20181226","20190121","20190121","20190121","20190121"]
-hour=["000000","020000","010000","011002","012004","013007","014009"]
+hour=["000000","020000","090000","091002","092005","093007","094010"]
 
 
 trajet='/net/nfs/prj1/QUALAIR/microLIDAR/database/MILAN/ascii/'+annee[0]+'/'+dates[0]+'/mli2MOY_'+dates[0]+'.'+hour[0]+'.JUS'
@@ -93,11 +93,11 @@ plt.plot(altitude,rayleigh532['beta_m']*rayleigh532['tm'], label='Rayleigh 532')
 plt.plot(altitude,rayleigh808['beta_m']*rayleigh808['tm'],label='Rayleigh 808')
 """
 #%% calcul constante
-idx_3000m=np.where(altitude==0.6)
+idx_3000m=np.where(altitude==6.)
 id3=idx_3000m[0][0]
-idx_4000m=np.where(altitude==1.005)
+idx_4000m=np.where(altitude==8.01)
 id4=idx_4000m[0][0]
-idx_8000m=np.where(altitude==6)
+idx_8000m=np.where(altitude==6.)
 id8=idx_8000m[0][0]
 idx_9000m=np.where(altitude==8.01)
 id9=idx_9000m[0][0]
@@ -127,14 +127,15 @@ data532cor=[]
 for i in range(len(altitude)):
     data808cor.append(data808moy[i]/cste808[2]/geom808_fit[i])
     data532cor.append(data532moy[i]/cste532[2]/geom532_fit[i])
+
  
 #%%Estimation transmission aérosols à zmax
 
 LRp=50.
 LRm=(8*np.pi)/3.
 
-T_p808=outils.calc_transmission_aer(LRp,LRm,altitude,data808moy,data808cor,rayleigh808)
-T_p532=outils.calc_transmission_aer(LRp,LRm,altitude,data532moy,data532cor,rayleigh532)
+T_p808=outils.calc_transmission_aer(LRp,LRm,altitude,data808cor,rayleigh808)
+T_p532=outils.calc_transmission_aer(LRp,LRm,altitude,data532cor,rayleigh532)
 
 
 #%%Nouvelle estimation de la constante instrumentale
@@ -166,63 +167,73 @@ plt.show()
 """
 
 #%%Calcul coefficient rétrodiffusion particule, Fernald,plus stable
-"""
+
 izrkm=np.where(altitude==8.01)
 izr=izrkm[0][0]
 data808moy_zr=statistics.mean(data808moy[izr-10:izr+10])
+data532moy_zr=statistics.mean(data532moy[izr-10:izr+10])
 
 
 beta808_aer2=outils.calc_beta_aer_stable(izr,data808moy_zr,altitude,rayleigh808,data808moy,LRp,LRm)
-
-
+beta532_aer2=outils.calc_beta_aer_stable(izr,data532moy_zr,altitude,rayleigh532,data532moy,LRp,LRm)
+"""
 plt.figure()
 plt.title("coefficient retrodiffusion aérosols, 808nm")
-plt.plot(altitude,beta808_aer2/cste808[2],label="beta aerosol")
-plt.plot(altitude,rayleigh808['beta_m']/cste808[2],label="beta moléculaire")
+plt.plot(altitude,beta808_aer2,label="beta aerosol 808")
+plt.plot(altitude,rayleigh808['beta_m'],label="beta moléculaire")
 plt.legend()
 plt.show()    
 
-beta808_p_fit=beta808_p[:id8]
-coeff_beta808_p_fit=np.polyfit(altitude[id8:],beta808_p[id8:],2)
+plt.figure()
+plt.title("coefficient retrodiffusion aérosols, 808nm")
+plt.plot(altitude,beta532_aer2,label="beta aerosol 532")
+plt.plot(altitude,rayleigh808['beta_m'],label="beta moléculaire")
+plt.legend()
+plt.show()    
+
+
+beta808_aer_fit=beta808_aer2[:id8]
+coeff_beta808_p_fit=np.polyfit(altitude[id8:],beta808_aer2[id8:],2)
 for i in range(len(altitude[id8:])):
-    beta808_p_fit.append(coeff_beta808_p_fit[0]*altitude[i]*altitude[i]+coeff_beta808_p_fit[1]*altitude[i]+coeff_beta808_p_fit[2])
+    beta808_aer_fit.append(coeff_beta808_p_fit[0]*altitude[i]*altitude[i]+coeff_beta808_p_fit[1]*altitude[i]+coeff_beta808_p_fit[2])
 
 plt.figure()
 plt.title("coefficient retrodiffusion aérosols, 808nm")
-plt.plot(altitude,beta808_p,label="beta aerosol")
-plt.plot(altitude,beta808_p_fit,label="beta aérosol fit")
+plt.plot(altitude,beta808_aer,label="beta aerosol")
+plt.plot(altitude,beta808_aer_fit,label="beta aérosol fit")
 plt.legend()
 plt.show()    
 """
 
  #%%Moyenne cste
-cste808_liste=[36689419.37807519,33214615.779274035,33606423.776109919,31568627.592203494,33948537.277566925,41044935.117830724,33606423.776109919,34789707.198917709]
-cste532_liste=[13716012.962917635,14174571.356842197,14607243.276845891,15351104.91029889,12607659.628663693,12345142.824067345,14607243.276845891,12332518.529443894]
+cste532_liste=[1.18,1.487,1.16,1.948,1.512,1.626,1.374]
+cste808_liste=[3.105,3.397,3.482,3.648,3.573,3.455,3.4]
 
 
 #%% plot
 
 plt.figure()
-plt.title('Vérification superpostition courbes, date+heure, 808nm')
-plt.plot(altitude,data808moy,linewidth=1.,label="PR2")
-plt.plot(altitude,cste808[2]*rayleigh808['beta_m']*rayleigh808['tm']*T_p808*T_p808,linestyle='--',color='k',label="Rayleigh*constante")
+plt.title('2019/01/21 1h30, 808nm //')
+plt.plot(data808moy,altitude,linewidth=1.,label="S")
+plt.plot(cste808[2]*rayleigh808['beta_m']*rayleigh808['tm']*T_p808*T_p808,altitude,linestyle='--',color='k',label="Rayleigh*constante")
 #plt.yscale('Log')
-plt.xlim(0,30)
+plt.ylim(0,4)
+plt.xlim(-20,60)
 #plt.ylim(-100,150)
-plt.xlabel("altitude (km)")
-plt.ylabel("log(voie1)")
+plt.ylabel("altitude (km)")
+plt.xlabel("voie1")
 plt.legend()
 plt.show()
 
 plt.figure()
 plt.title('Vérification superpostition courbes, date+heure, 532nm')
-plt.plot(altitude,data532moy,linewidth=1.,label="PR2")
-plt.plot(altitude,cste532[2]*rayleigh532['beta_m']*rayleigh532['tm']*T_p532*T_p532,linestyle='--',color='k',label="Rayleigh*constante")
+plt.plot(data532moy,altitude,linewidth=1.,label="PR2")
+plt.plot(cste532[2]*rayleigh532['beta_m']*rayleigh532['tm']*T_p532*T_p532,altitude,linestyle='--',color='k',label="Rayleigh*constante")
 #plt.yscale('Log')
-plt.xlim(0,30)
+plt.ylim(0,30)
 #plt.ylim(-100,100)
-plt.xlabel("altitude (km)")
-plt.ylabel("log(voie1)")
+plt.ylabel("altitude (km)")
+plt.xlabel("log(voie1)")
 plt.legend()
 plt.show()
 
@@ -241,25 +252,25 @@ plt.title("Fonction de recouvrement, 532nm")
 plt.xlabel("altitude (km)")
 plt.ylabel("fonction de recouvrement")
 plt.plot(altitude,geom532_fit)
-plt.xlim(0,2)
+plt.xlim(0,10)
 plt.legend()
 plt.show()
 
 plt.figure()
-plt.title('Correction avec K, 2019 03 28 17h 808nm')
-plt.plot(altitude[id0:id9],data808cor[id0:id9],label="PR2 corrigé de 0(z) et K")
-plt.plot(altitude[id0:id9],rayleigh808['beta_m'][id0:id9]*rayleigh808['tm'][id0:id9]*T_p808*T_p808,label="Rayleigh")
-plt.ylabel("PR2")
-plt.xlabel("altitude (km)")
+plt.title('Correction avec K, 2019 03 08 8h 808nm')
+plt.plot(data808cor[id0:id9],altitude[id0:id9],label="PR2 corrigé de 0(z) et K")
+plt.plot(rayleigh808['beta_m'][id0:id9]*rayleigh808['tm'][id0:id9]*T_p808*T_p808,altitude[id0:id9],label="Rayleigh")
+plt.xlabel("PR2")
+plt.ylabel("altitude (km)")
 plt.legend()
 plt.show()
 
 plt.figure()
-plt.title('Correction avec K, 2019 03 28 17h 532nm')
-plt.plot(altitude[id0:id9],data532cor[id0:id9],label="PR2 corrigé de 0(z) et K")
-plt.plot(altitude[id0:id9],rayleigh532['beta_m'][id0:id9]*rayleigh532['tm'][id0:id9]*T_p532*T_p532,label="Rayleigh")
-plt.ylabel("PR2")
-plt.xlabel("altitude (km)")
+plt.title('Correction avec K, 2019 03 08 8h 532nm')
+plt.plot(data532cor[id0:id9],altitude[id0:id9],label="PR2 corrigé de 0(z) et K")
+plt.plot(rayleigh532['beta_m'][id0:id9]*rayleigh532['tm'][id0:id9]*T_p532*T_p532,altitude[id0:id9],label="Rayleigh")
+plt.xlabel("PR2")
+plt.ylabel("altitude (km)")
 plt.legend()
 plt.show()
 

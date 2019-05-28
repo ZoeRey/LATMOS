@@ -55,11 +55,19 @@ def isa(altitude_m,season):
     return isa
 
 #calcul le coefficient d'extinction
-def calc_apha(longueur_onde,p,t):
-    p0 = p[len(p)-1] #Attention, doit être p[0] et t[0] si l'altitude est rangée dans l'autre sens
-    t0 = t[len(p)-1]   
-    alpha=1.66*((550/longueur_onde)**(4.09))*(p/p0)*(t0/t)*(10**(-5))
-    return alpha
+def calc_alpha(longueur_onde,p,t):
+    t0=288.15
+    p0=101325
+    ns=1+10**(-8)*(5791817/(238.0185-1/(longueur_onde*10**(-3))**2)+167909/(57.362-1/(longueur_onde*10**(-3))**2))
+    if longueur_onde==532:
+        rho=2.842*10**(-2)
+    elif longueur_onde==808:
+        rho=2.730*10**(-2)
+    Fk=(6+3*rho)/(6-7*rho)
+    sigma=(24*np.pi**3*(ns**2-1)**2)/((longueur_onde)**4*2.54743*(ns**2+2)**2*10**(-9))*Fk
+    alpha=sigma*(np.array(p)/p0)*(t0/np.array(t))*10**5
+    return alpha 
+
 
 #calcul le coefficient de retrodiffusion
 def calc_beta(alpha):
@@ -73,10 +81,10 @@ def calc_molecular_profile(source_mol,altitude,longonde):
         tmp=isa(altitude[alt]*1000,'standard')
         rayleigh['t'].append(tmp['t'])
         rayleigh['p'].append(tmp['p'])
-    rayleigh['alpha_m']=calc_apha(rayleigh['lambda'],rayleigh['p'],rayleigh['t'])
+    rayleigh['alpha_m']=calc_alpha(rayleigh['lambda'],rayleigh['p'],rayleigh['t'])
     rayleigh['beta_m']=np.array(calc_beta(rayleigh['alpha_m']))
-    rayleigh['mod']=[np.trapz(rayleigh['alpha_m'][:i],x=altitude[:i]*1000) for i in range(len(altitude))]
+    rayleigh['mod']=[np.trapz(rayleigh['alpha_m'][:i],x=altitude[:i]) for i in range(len(altitude))]
     rayleigh['tm']=[np.exp(-2*rayleigh['mod'][i]) for i in range(len(altitude))]
-    
+    print(rayleigh['alpha_m'])
     
     return rayleigh

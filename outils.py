@@ -33,10 +33,13 @@ def calc_cste(data,datamoy,rayleigh,indice1,indice2,indice3,indice4):
 #%%Calcul fonction de recouvrement
     
 def calc_geom(data,cste,rayleigh,altitude):
-    geom=[[0]*len(altitude) for i in range(0,2)]
+    geom=[[0]*len(data[0]) for i in range(0,2)]
     for n in range(0,2):
-        for i in range(len(altitude)):
+        for i in range(len(data[0])):
             geom[n][i]=(data[n][i]/(cste[n]*rayleigh['beta_m'][i]*rayleigh['tm'][i]))
+    for n in range(0,2):
+        for i in range(len(altitude)-len(data[0])):
+            geom[n].append(1)    
     return geom
 
 def calc_geom_fit_moy(geom,altitude,indice1,indice2):
@@ -86,24 +89,26 @@ def calc_transmission_aer(LRp,LRm,altitude,datacorr,rayleigh):
             diff1=diff
             itop=i
 
+    EO_p=LRp*altitude[itop]*(datacorr[imax]/rayleigh['tm'][imax]-rayleigh['beta_m'][imax])
+    T_p=np.exp(-1*EO_p)
 
-    beta_p_zmax=datacorr[itop]/rayleigh['tm'][itop]
-    beta_m_zmax=rayleigh['beta_m'][itop]
-    EO_p_zmax=(beta_p_zmax-beta_m_zmax)*altitude[itop]*1000
-    T_p=np.exp(-1.*LRp*EO_p_zmax)
+    print("imax=",imax)
+    #print(itop)
+    print("EO_p=",EO_p)
+    print("Transmission=",T_p)
+    print("Rapport diffusion=",1.+(datacorr[imax]/rayleigh['beta_m'][imax]))
+    print("\n")
     
-    print(-np.log(T_p))
-    
-    return T_p
+    return T_p,imax
 
 #%%calcul coefficient rétrodiffusion aérosols
     
 def calc_beta_aer(rayleigh,altitude,datamoy,LRp,LRm,cste):
-    a=[np.trapz(rayleigh['beta_m'][:i],x=altitude[:i]*1000) for i in range(len(altitude))]
+    a=[np.trapz(rayleigh['beta_m'][:i],x=altitude[:i]) for i in range(len(altitude))]
     b=[]
     for i in range(len(altitude)):
         b.append(datamoy[i]*np.exp(-2.*(LRp-LRm)*a[i]))
-    c=[np.trapz(b[:i],x=altitude[:i]*1000) for i in range(len(altitude))]
+    c=[np.trapz(b[:i],x=altitude[:i]) for i in range(len(altitude))]
     beta_p=[]
     for i in range(len(altitude)):
         beta_p.append((datamoy[i]*np.exp(-2.*(LRp-LRm)*a[i]))/(cste-2.*LRp*c[i])-rayleigh['beta_m'][i])
@@ -123,17 +128,17 @@ def calc_beta_aer_stable(izr,datamoy_zr,altitude,rayleigh,datamoy,LRp,LRm):
     b=[]
     beta_p=[]
     for i in range(0,izr):
-        a.append(np.trapz(rayleigh['beta_m'][i:izr],x=altitude[i:izr]*1000))
+        a.append(np.trapz(rayleigh['beta_m'][i:izr],x=altitude[i:izr]))
         b.append(datamoy[i]*np.exp(2.*(LRp-LRm)*a[i]))
-    c=[np.trapz(b[i:izr],x=altitude[i:izr]*1000) for i in range(0,izr)]
+    c=[np.trapz(b[i:izr],x=altitude[i:izr]) for i in range(0,izr)]
     for i in range(0,izr):
         beta_p.append((datamoy[i]*np.exp(2.*(LRp-LRm)*a[i]))/(datamoy_zr/rayleigh['beta_m'][izr]+2.*LRp*c[i])-rayleigh['beta_m'][i])
 
 
     for i in range(0,len(altitude)-izr):
-        a.append(np.trapz(rayleigh['beta_m'][izr-1:izr-1+i],x=altitude[izr-1:izr-1+i]*1000))
+        a.append(np.trapz(rayleigh['beta_m'][izr-1:izr-1+i],x=altitude[izr-1:izr-1+i]))
         b.append(datamoy[izr-1+i]*np.exp(-2.*(LRp-LRm)*a[izr-1+i]))
-    c=c+[np.trapz(b[izr-1:i],x=altitude[izr-1:i]*1000) for i in range(0,len(altitude)-izr)]
+    c=c+[np.trapz(b[izr-1:i],x=altitude[izr-1:i]) for i in range(0,len(altitude)-izr)]
     for i in range(0,len(altitude)-izr):
         beta_p.append((datamoy[izr-1+i]*np.exp(-2.*(LRp-LRm)*a[izr-1+i]))/(datamoy_zr/rayleigh['beta_m'][izr]-2.*LRp*c[izr-1+i])-rayleigh['beta_m'][izr-1+i])
 

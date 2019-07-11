@@ -1,0 +1,235 @@
+%% Based on a TeXnicCenter-Template by Tino Weinkauf.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HEADER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,twoside,10pt]{article}
+% Alternative Options:
+%	Paper Size: a4paper / a5paper / b5paper / letterpaper / legalpaper / executivepaper
+% Duplex: oneside / twoside
+% Base Font Size: 10pt / 11pt / 12pt
+
+
+%% Language %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[USenglish]{babel} %francais, polish, spanish, ...
+\usepackage[T1]{fontenc}
+\usepackage[ansinew]{inputenc}
+\usepackage{lmodern} 
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+%\usepackage{hyperref}
+%\usepackage{verbatim}
+%\usepackage{xcolor}
+%\usepackage{ulem}
+%\usepackage{xspace}
+\usepackage{geometry}
+\usepackage{here}
+
+% Quelques commandes
+\newcommand{\erf}{\mbox{erf}}
+\newcommand{\E}{\mbox{E}}
+\newcommand{\V}{\mbox{Var}}
+\newcommand{\sign}{\mbox{sign}}
+\newcommand{\BE}{\begin{equation}}
+\newcommand{\EE}{\end{equation}}
+\newcommand{\DS}{\displaystyle}
+\renewcommand{\d}{\mbox{d}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\ta}[1]{\textcolor{blue}{#1}}  % ajout
+%\newcommand{\ta}[1]{{#1}}  % ajout
+\newcommand{\tc}[1]{\textcolor{red}{#1}} % commentaire
+%\newcommand{\tg}[1]{\textcolor{gray}{#1}} % ancien
+\newcommand{\ts}[1]{\sout{#1}}            % suppression
+
+\geometry{a4paper,portrait}
+\geometry{top=3cm, bottom=3cm, left=3cm, right=3cm}
+
+\setlength{\parindent}{0pt}
+
+
+
+\begin{document}\sloppy
+
+
+\title{Comparaison des données du radar CURIE et du microlidar MILAN sur le site QUALAIR
+       le 29 avril 2019}
+
+\author{ Zoé Rey, Richard Wilson et François Ravetta}
+% \affil[1]{Sorbonne Université, CNRS/INSU, UMR 8190, LATMOS-IPSL, Paris, France}
+% \affil[2]{Univ. du Sud Toulon-Var, 83957, La Garde, France}
+% \affil[3]{Univ. Versailles St-Quentin, CNRS/INSU, UMR 8190, LATMOS-IPSL, Paris, France}
+
+%\runningtitle{Data CURIE QUALAIR 2019}
+%\runningauthor{Wilson}
+
+%\correspondence{R.~Wilson (richard.wilson@upmc.fr)}
+
+% \received{23 November 2016}
+% \accepted{27 January 2017}
+
+\maketitle
+
+\begin{abstract}
+Comparaison des données acquises le 29 Avril 2019 par le radar CURIE et le lidar MILAN en vue d'une étude sur la dynamique de la couche limite atmosphérique.
+\end{abstract}
+
+%========================================
+\section{Introduction}\label{sec:intro}
+%=======================================
+
+Le radar CURIE a fonctionné quasi-continument d'octobre 2018 à mai 2019. Le lidar MILAN est en marche depuis 2018 sur les toits de la Sorbonne Univerité. L'objectif est d'étudier la dynamique de la couche limite Parisienne à partir de mesures du lidar aérosol (MILAN) et du radar (CURIE).
+
+Le radar CURIE est dans une version nouvelle (info-numérique jouvencée). Il s'agit donc, dans un premier temps, d'évaluer la qualité des mesures
+effectuées. La fiabilité s'est avérée très bonnes puisque le radar a fonctionné continument, sans intervention, pendant plus de sept mois. La comparaison avec les données du lidar MILAN sera faite pour la journée du 29 Avril 2019.
+
+%========================================
+\section{Caractéristiques des instruments de mesure}
+%========================================
+
+\subsection{Le radar CURIE}
+
+Le radar CURIE est un radar pulsé, fonctionnant en bande~X (9,42~GHz), 
+tirant à la verticale. Les paramètres d'acquisition sont décrits table~(\ref{table:params}):
+
+\begin{table}[!ht]
+     \centering
+     \begin{tabular}{l|l} \hline
+         Fréquence du radar [GHz] & 9,42 \\
+         Longueur d'onde [m] & 0.032 \\
+         Ouverture du lobe principal [degré] & 1.9 \\
+         Puissance de sortie [W] & 63  \\
+         Gain de l'antenne [dB] & 40   \\
+         Durée d'une impulsion radar [ns] & 160 \\
+         Résolution verticale [m] & 24 \\
+         Nombre de points par série temporelle & 4096 \\
+         Altitude station (QUALAIR) [m] & 55 \\
+         direction du faisceau (azim, zénit) [degrés] & (0,0) \\
+         Nombre d'intégration cohérentes & 256 \\
+         Période Inter-Pulse [$\mu$s] & 20,48 \\
+         Période d'échantillonnage [s] & 5.2$\times$10$^{-3}$ \\
+         Fréquence d'échantillonnage [Hz] & 190.7 \\
+         Nombre de points fft & 1024 \\
+         Vitesse max [m/s] & $\pm 1.52$ \\
+         Résolution en fréquence (Hz) (en vitesse [m/s]) & 0.18 
+[$2.96\times10^{-3}$] \\
+         \hline
+     \end{tabular}
+     \caption{Les paramètres de fonctionnement du radar CURIE pendant la
+     campagne QUALAIR-2019}\label{table:params}
+\end{table}
+
+
+\subsection{Le lidar MILAN}
+
+Le lidar MILAN fonctionne à 2 longueurs d'ondes, 532 et 808 nm. Le faisceau lumineux est émis au zenith par impulsion de quelques nanosecondes, toutes les $50$ ms. De plus, à l'émission, les faisceaux du lidar MILAN sont également polarisés, permettant de séparer les composantes parallèles et croisées du rayonnement lumineux. Le lidar MILAN est composé de 4 voies de réception :
+\begin{itemize}
+\item voie1 : 532 nm parallèle, longueur d'onde dans le vert
+\item voie2: 532 nm croisée
+\item voie3 : 808 nm parallèle, longueur d'onde dans le rouge
+\item voie4 : 808 nm croisée\\
+\end{itemize}
+
+Le signal reçu, appelé PR2, est proportionnel à l'altitude au carré et est exprimé en unité arbitraire. Pour obtenir un signal exploitable, le PR2 devra par la suite être corrigé de la fonction de géométrie et de la constante instrumentale. La géométrie du système rend le signal inexploitable pour les altitudes inférieures à 60 m. Par ailleurs, le bruit augmente quand l'altitude augmente. La limite de bruit se trouve  générallement autour de 3-4 km de jour et autour de 10 km de nuit.
+
+
+
+%=====================================
+\section{Quelques résultats}
+%=====================================
+
+\subsection{Profil lidar altitude-temps du 29 Avril 2019}
+
+La journée du 29 mai a été choisie car elle montre, à partir des données lidar, un beau développement de couche limite. Il s'agit (très vraisemblablement) d'une journée chaude avec développement de convection, cf figure~\ref{profil_lidar}. Des nuages de sommet de couche limite sont présents quasiment tout au long de la journée. Des couches résiduelles de particules sont présentes pendant la nuit.
+
+\begin{figure}[H]
+\centerline{\includegraphics[width=14cm]{images/profil_lidar.png}}
+\caption{Intensité du PR2 (color bar en UA), pour la voie 3 à 808 nm,  en fonction du temps (UT) en abscisse et de l'altitude en ordonnée (km).}
+\label{profil_lidar}
+\end{figure}
+
+
+\subsection{Exemples de profil de spectres du radar CURIE}
+
+Les figures (\ref{fig:profil_spectres_3min_nuit}) et (\ref{fig:profil_spectres_3min_jour}) montrent les 150 spectres (150 niveaux d'altitude) d'un profil radar. La figure (\ref{fig:profil_spectres_3min_nuit}) correspond à des mesures de nuits (atmosphère stable à priori) tandis que la figure (\ref{fig:profil_spectres_3min_jour}) montre des mesures de jour (atmosphère convective instable).
+
+Les spectres sont montrés en fonction de la vitesse Doppler, l'échelle verticale des spectres est arbitraire puisque la dynamique des spectres
+est décrit dans une porte de largeur constante. Des échos sont visibles jusqu'à $\sim$~500~m la nuit et jusqu'à $\sim$~600~m le jour. Des échos au dessus de 1000~m sont aussi (rarement) observés.
+
+\begin{figure*}[H]
+     \centering
+     \includegraphics[width=33pc]
+     {images/figure1.png}
+     \caption{Profil de spectres Doppler obtenu de nuit
+     \label{fig:profil_spectres_3min_nuit}}
+\end{figure*}
+
+\begin{figure*}[H]
+    \centering
+    \includegraphics[width=33pc]
+    {images/figure2.png}
+    \caption{Profil de spectres Doppler obtenu de jour
+    \label{fig:profil_spectres_3min_jour}}
+\end{figure*}
+
+La figure~\ref{fig:spectres_zoom1} montre un zoom des spectres des premières portes. Les 4 premières portes apparaissent très bruitées et vont s'avérer difficilement exploitables.
+
+\begin{figure*}[H]
+     \centering
+     \includegraphics[width=33pc]
+     {images/figure3.png}
+     \caption{Spectres Doppler des premières portes
+     \label{fig:spectres_zoom1}}
+\end{figure*}
+
+\subsection{Moments spectraux (puissance, vitesse, variance)}
+
+Les figures~(\ref{fig:w}), (\ref{fig:Pxz2}) et (\ref{fig:TKE}) montrent respectivement les variations temps-altitude des vitesses verticales, de la réflectivité atmosphérique et de la variance des vitesses verticales (i.e. de l'ECT - Énergie Cinétique Turbulence).
+
+\begin{figure*}[H]
+     \centering
+     \includegraphics[width=30pc]
+{images/figure4.png}
+     \caption{Spectres Doppler des premières portes
+     \label{fig:w}}
+\end{figure*}
+
+\begin{figure*}[H]
+     \centering
+     \includegraphics[width=30pc]
+{images/figure5.png}
+     \caption{Spectres Doppler des premières portes
+     \label{fig:Pxz2}}
+\end{figure*}
+
+\begin{figure*}[H]
+     \centering
+     \includegraphics[width=30pc]
+{images/figure6.png}
+     \caption{Spectres Doppler des premières portes
+     \label{fig:TKE}}
+\end{figure*}
+
+\section{Conclusions}
+
+À ce stade les conclusions sont difficiles à tirer:
+\begin{enumerate}
+     \item Les 4 premières portes sont difficilement exploitables
+     \item Les spectres de jour et de nuits sont peu différenciés.
+     \item En contradiction avec l'affirmation précédente, il y a bien
+           une variation diurne,
+     \item La portée max est de l'ordre de 600~m.
+            Quelques échos à des altitudes supérieures sont parfois 
+détectés.
+     \item Les vitesses verticales sont très faibles. Les ascendances ne sont pas détectées. {\bf Un problème d'écho de sol?}
+\end{enumerate}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fi
+
+\end{document}
+%------------------------------------------------------------------
+
